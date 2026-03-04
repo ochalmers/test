@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__figma__generate_figma_design",
+      "Bash(open \"http://localhost:8765/index.html#figmacapture=c8a05bc3-2a71-42e2-a5fc-08a3285e3503&figmaendpoint=https%3A%2F%2Fmcp.figma.com%2Fmcp%2Fcapture%2Fc8a05bc3-2a71-42e2-a5fc-08a3285e3503%2Fsubmit&figmadelay=1000\")",
+      "mcp__figma__whoami",
+      "mcp__figma__get_design_context"
+    ]
+  }
+}

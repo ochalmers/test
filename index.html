@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio-SN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-light: #efece8;
+      --color-dark: #010302;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Suisse Int\'l', 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--color-light);
+      transition: background 0.45s ease;
+    }
+
+    body.info-open {
+      background: var(--color-dark);
+    }
+
+    /* ── Stage: shared bounds for video + overlay ── */
+    /* Top/left/right: 20px inset. Bottom: clears the footer bar. */
+    .stage {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      bottom: 80px; /* 20px gap + 40px font + 20px breathing room */
+      z-index: 10;
+    }
+
+    /* ── Background video ── */
+    .video-wrap {
+      position: absolute;
+      inset: 0;
+      background: #2a2e25;
+      overflow: hidden;
+    }
+
+    .video-wrap video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ── Footer bar ── */
+    .footer-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      pointer-events: none;
+    }
+
+    .footer-logo {
+      height: 36px;
+      width: auto;
+      display: block;
+      transition: filter 0.45s ease;
+      /* Union.png is dark — invert to white in dark mode */
+      filter: brightness(0);
+    }
+
+    body.info-open .footer-logo {
+      filter: brightness(0) invert(1);
+    }
+
+    .brand {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 40px;
+      font-weight: 500;
+      line-height: 1;
+      color: var(--color-dark);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      transition: color 0.45s ease;
+    }
+
+    body.info-open .brand {
+      color: var(--color-light);
+    }
+
+    .info-link,
+    .close-link {
+      font-size: 40px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      pointer-events: auto;
+      white-space: nowrap;
+      transition: color 0.45s ease, opacity 0.2s ease;
+    }
+
+    .info-link {
+      color: var(--color-dark);
+    }
+
+    .close-link {
+      display: none;
+      color: var(--color-light);
+    }
+
+    .info-link:hover,
+    .close-link:hover {
+      opacity: 0.65;
+    }
+
+    body.info-open .info-link { display: none; }
+    body.info-open .close-link { display: block; }
+
+    /* ── Info overlay: fills the stage exactly ── */
+    .info-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(10, 8, 8, 0.5);
+      border-radius: 2px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body.info-open .info-overlay {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .info-inner {
+      padding: 20px 20px 5rem 20px;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Main description text ── */
+    .info-body {
+      max-width: 62%;
+      color: var(--color-light);
+      font-size: clamp(16px, 1.55vw, 22px);
+      line-height: 1.05;
+    }
+
+    .info-body p {
+      margin-bottom: 1.4em;
+    }
+
+    .info-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-body a {
+      color: var(--color-light);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .info-body a:hover {
+      opacity: 0.7;
+    }
+
+    /* ── Columns: clients + team ── */
+    .info-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4vw;
+      margin-top: auto;
+      padding-top: 6vw;
+      color: var(--color-light);
+      font-size: clamp(15px, 1.4vw, 20px);
+      line-height: 1.5;
+    }
+
+    .info-columns h3 {
+      font-size: inherit;
+      font-weight: 500;
+      margin-bottom: 1.1em;
+    }
+
+    .info-columns a {
+      color: var(--color-light);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .info-columns a:hover {
+      opacity: 0.7;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .stage { top: 16px; left: 16px; right: 16px; bottom: 68px; }
+      .footer-bar { padding: 0 16px; bottom: 16px; }
+      .footer-logo { height: 26px; }
+      .brand, .info-link, .close-link { font-size: clamp(22px, 5vw, 32px); }
+
+      .info-body { max-width: 100%; }
+      .info-columns {
+        grid-template-columns: 1fr 1fr;
+        gap: 6vw;
+        padding-top: 8vw;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .stage { top: 12px; left: 12px; right: 12px; bottom: 52px; }
+      .footer-bar { padding: 0 14px; bottom: 12px; }
+      .footer-logo { height: 20px; }
+      .brand, .info-link, .close-link { font-size: 22px; }
+
+      .info-columns {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        padding-top: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Stage: video + overlay share identical bounds -->
+  <div class="stage">
+
+    <div class="video-wrap">
+      <video autoplay loop muted playsinline>
+        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4">
+      </video>
+    </div>
+
+  <!-- Info overlay (dark blurred panel, sits directly over video) -->
+  <div class="info-overlay" id="info-overlay" role="dialog" aria-label="About Studio-SN" aria-modal="true">
+    <div class="info-inner">
+
+      <div class="info-body">
+        <p>STUDIO-SN is a Yorkshire-based web design and branding agency set up by two friends and former work colleagues, Terry and Oliver, who share a combined 25+ years experience designing, producing and launching websites, apps and other digital experiences.</p>
+        <p>We help small businesses and start-ups create professional, high performance websites that are beautifully designed, easy to update, SEO-optimised and scaleable.</p>
+        <p>Using the latest tools and technology, we work efficiently and cost-effectively to provide you with the best return on your investment, while delivering unrivalled customer service and ongoing support.</p>
+        <p>To discuss your company branding and website needs, send us a message at <a href="mailto:info@studio-sn.uk?subject=Hello%20STUDIO-SN!">info@studio-sn.uk</a> and we'll get back to you.</p>
+      </div>
+
+      <div class="info-columns">
+        <div>
+          <h3>Previous clients include</h3>
+          <div>
+            <a href="https://www.sonymusic.com" target="_blank" rel="noopener">Sony Music</a><br>
+            <a href="https://www.columbiarecords.com" target="_blank" rel="noopener">Columbia Records</a><br>
+            <a href="https://www.rcarecords.com" target="_blank" rel="noopener">RCA Records</a><br>
+            <a href="https://www.meta.com" target="_blank" rel="noopener">Meta</a><br>
+            <a href="https://www.hamiltoncommission.co.uk" target="_blank" rel="noopener">The Hamilton Commission</a><br>
+            <a href="https://www.diy.com" target="_blank" rel="noopener">B&amp;Q</a><br>
+            <a href="https://www.luther.systems" target="_blank" rel="noopener">Luther Systems</a><br>
+            <a href="https://www.themaidenfactor.org" target="_blank" rel="noopener">The Maiden Factor</a><br>
+            <a href="https://www.appearhere.co.uk" target="_blank" rel="noopener">Appear Here</a><br>
+            <a href="https://www.easthaus.co.uk" target="_blank" rel="noopener">Easthaus</a>
+          </div>
+        </div>
+        <div>
+          <h3>Who we are</h3>
+          <div>
+            <a href="https://www.linkedin.com/in/terry-summerbell/" target="_blank" rel="noopener">Terry Summerbell</a><br>
+            <a href="https://www.linkedin.com/in/oliver-chalmers-86609613/" target="_blank" rel="noopener">Oliver Chalmers</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  </div><!-- /.stage -->
+
+  <!-- Footer bar -->
+  <footer class="footer-bar">
+    <img src="Union.png" alt="Studio-SN mark" class="footer-logo">
+    <span class="brand">Studio-SN</span>
+    <a href="#" class="info-link" id="info-trigger">Info +</a>
+    <a href="#" class="close-link" id="close-trigger" aria-label="Close info panel">Close -</a>
+  </footer>
+
+  <script>
+    const body = document.body;
+    const infoTrigger = document.getElementById('info-trigger');
+    const closeTrigger = document.getElementById('close-trigger');
+    const overlay = document.getElementById('info-overlay');
+
+    function openInfo(e) {
+      e.preventDefault();
+      body.classList.add('info-open');
+      overlay.scrollTop = 0;
+    }
+
+    function closeInfo(e) {
+      e.preventDefault();
+      body.classList.remove('info-open');
+    }
+
+    infoTrigger.addEventListener('click', openInfo);
+    closeTrigger.addEventListener('click', closeInfo);
+
+    // Close on Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && body.classList.contains('info-open')) closeInfo(e);
+    });
+  </script>
+</body>
+</html>
