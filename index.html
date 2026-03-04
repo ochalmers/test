@@ -86,8 +86,9 @@
 
     .brand {
       position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
+      right: 0;
+      text-align: center;
       font-size: 40px;
       font-weight: 500;
       line-height: 1;
@@ -212,6 +213,62 @@
 
     .info-columns a:hover {
       opacity: 0.7;
+    }
+
+    /* ── Keyframes ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    @keyframes stageFade {
+      from { opacity: 0; transform: scale(0.985); }
+      to   { opacity: 1; transform: scale(1);     }
+    }
+
+    /* ── Page load animations ── */
+    .stage {
+      animation: stageFade 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .footer-logo {
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.2s;
+    }
+
+    .brand {
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.35s;
+    }
+
+    .info-link {
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.5s;
+    }
+
+    /* ── Overlay content animations ── */
+    /* Default: hidden, ready to animate in */
+    .info-body,
+    .info-columns > div {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    /* Open: staggered fade-up, delayed so overlay appears first */
+    body.info-open .info-body {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.2s;
+    }
+
+    body.info-open .info-columns > div:nth-child(1) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.32s;
+    }
+
+    body.info-open .info-columns > div:nth-child(2) {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.42s;
     }
 
     /* ── Responsive ── */
