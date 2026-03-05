@@ -64,6 +64,23 @@
       object-fit: cover;
     }
 
+    .video-portrait {
+      display: none;
+    }
+
+    .video-landscape {
+      display: block;
+    }
+
+    @media (orientation: portrait) {
+      .video-portrait {
+        display: block;
+      }
+      .video-landscape {
+        display: none;
+      }
+    }
+
     /* ── Footer bar: always on top, always clickable ── */
     .footer-bar {
       position: fixed;
@@ -364,8 +381,11 @@
   <div class="stage">
 
     <div class="video-wrap">
-      <video id="heroVideo" autoplay loop muted playsinline preload="auto">
+      <video id="heroVideoLandscape" class="video-landscape" autoplay loop muted playsinline preload="auto">
         <source src="DalesTrain.mp4" type="video/mp4">
+      </video>
+      <video id="heroVideoPortrait" class="video-portrait" autoplay loop muted playsinline preload="auto">
+        <source src="verticalvideo.mp4" type="video/mp4">
       </video>
     </div>
 
@@ -429,7 +449,8 @@
     const infoTrigger = document.getElementById('info-trigger');
     const closeTrigger = document.getElementById('close-trigger');
     const overlay = document.getElementById('info-overlay');
-    const video = document.getElementById('heroVideo');
+    const isPortrait = () => window.matchMedia('(orientation: portrait)').matches;
+    const getActiveVideo = () => document.getElementById(isPortrait() ? 'heroVideoPortrait' : 'heroVideoLandscape');
     const loadingGate = document.getElementById('loadingGate');
 
     // Gate page until video is ready, then run animations
@@ -442,14 +463,27 @@
       loadingGate.classList.add('hidden');
     }
 
-    if (video) {
-      if (video.readyState >= 3) {
+    const landscapeVideo = document.getElementById('heroVideoLandscape');
+    const portraitVideo = document.getElementById('heroVideoPortrait');
+
+    function waitForActiveVideo() {
+      const active = getActiveVideo();
+      if (active && active.readyState >= 3) {
         onVideoReady();
-      } else {
-        video.addEventListener('canplay', onVideoReady, { once: true });
-        video.addEventListener('loadeddata', onVideoReady, { once: true });
-        setTimeout(onVideoReady, 5000);
+      } else if (active) {
+        active.addEventListener('canplay', onVideoReady, { once: true });
+        active.addEventListener('loadeddata', onVideoReady, { once: true });
       }
+    }
+
+    if (landscapeVideo && portraitVideo) {
+      waitForActiveVideo();
+      setTimeout(onVideoReady, 5000);
+
+      window.addEventListener('orientationchange', function() {
+        const active = getActiveVideo();
+        if (active) active.play().catch(function(){});
+      });
     } else {
       onVideoReady();
     }
