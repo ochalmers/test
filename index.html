@@ -287,6 +287,7 @@
     .loading-gate img {
       width: 48px;
       height: auto;
+      filter: brightness(0);
     }
 
     @keyframes loaderFadeIn {
@@ -306,7 +307,10 @@
       animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.35s;
     }
 
-    .info-link,
+    .page-loaded .info-link {
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.5s;
+    }
+
     .close-link {
       animation: none;
       opacity: 1;
