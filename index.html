@@ -3,7 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Studio-SN</title>
+  <title>Studio-SN — Yorkshire Web Design & Branding Agency</title>
+  <meta name="description" content="Studio-SN is a Yorkshire-based web design and branding agency. We help small businesses create professional, high performance websites that are beautifully designed and SEO-optimised.">
+  <meta name="keywords" content="web design, branding, Yorkshire, agency, websites, Studio-SN">
+  <meta property="og:title" content="Studio-SN — Yorkshire Web Design & Branding Agency">
+  <meta property="og:description" content="We help small businesses create professional, high performance websites that are beautifully designed, easy to update and SEO-optimised.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="Union.png">
+  <link rel="icon" href="Union.png" type="image/png" sizes="any">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -226,21 +233,64 @@
       to   { opacity: 1; transform: scale(1);     }
     }
 
+    /* ── Loading gate: hide page until video ready ── */
+    .page-loading .stage,
+    .page-loading .footer-bar {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .page-loaded .stage,
+    .page-loaded .footer-bar {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .loading-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: var(--color-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .loading-gate.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loading-gate svg {
+      width: 32px;
+      height: 32px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     /* ── Page load animations ── */
-    .stage {
+    .page-loaded .stage {
       animation: stageFade 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
-    .footer-logo {
+    .page-loaded .footer-logo {
       animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.2s;
     }
 
-    .brand {
+    .page-loaded .brand {
       animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.35s;
     }
 
-    .info-link {
-      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.5s;
+    .info-link,
+    .close-link {
+      animation: none;
+      opacity: 1;
+      transform: none;
     }
 
     /* ── Overlay content animations ── */
@@ -300,13 +350,19 @@
     }
   </style>
 </head>
-<body>
+<body class="page-loading">
+
+  <div class="loading-gate" id="loadingGate" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" stroke-linecap="round"/>
+    </svg>
+  </div>
 
   <!-- Stage: video + overlay share identical bounds -->
   <div class="stage">
 
     <div class="video-wrap">
-      <video autoplay loop muted playsinline>
+      <video id="heroVideo" autoplay loop muted playsinline preload="auto">
         <source src="DalesTrain.mp4" type="video/mp4">
       </video>
     </div>
@@ -326,16 +382,19 @@
         <div>
           <h3>Previous clients include</h3>
           <div>
-            <a href="https://www.sonymusic.com" target="_blank" rel="noopener">Sony Music</a><br>
+            <a href="https://www.sonymusic.co.uk" target="_blank" rel="noopener">Sony Music</a><br>
             <a href="https://www.columbiarecords.com" target="_blank" rel="noopener">Columbia Records</a><br>
             <a href="https://www.rcarecords.com" target="_blank" rel="noopener">RCA Records</a><br>
             <a href="https://www.meta.com" target="_blank" rel="noopener">Meta</a><br>
-            <a href="https://www.hamiltoncommission.co.uk" target="_blank" rel="noopener">The Hamilton Commission</a><br>
+            <a href="https://report.hamiltoncommission.org/interactive-summary/index.html" target="_blank" rel="noopener">The Hamilton Commission</a><br>
             <a href="https://www.diy.com" target="_blank" rel="noopener">B&amp;Q</a><br>
-            <a href="https://www.luther.systems" target="_blank" rel="noopener">Luther Systems</a><br>
+            <a href="https://www.luthersystems.com/" target="_blank" rel="noopener">Luther Systems</a><br>
             <a href="https://www.themaidenfactor.org" target="_blank" rel="noopener">The Maiden Factor</a><br>
             <a href="https://www.appearhere.co.uk" target="_blank" rel="noopener">Appear Here</a><br>
-            <a href="https://www.easthaus.co.uk" target="_blank" rel="noopener">Easthaus</a>
+            <a href="https://www.easthaus.co.uk" target="_blank" rel="noopener">Easthaus</a><br>
+            <a href="https://www.onedirectionmusic.com" target="_blank" rel="noopener">One Direction</a><br>
+            <a href="https://calvinharris.com" target="_blank" rel="noopener">Calvin Harris</a><br>
+            <a href="https://www.palomafaith.com" target="_blank" rel="noopener">Paloma Faith</a>
           </div>
         </div>
         <div>
@@ -365,6 +424,30 @@
     const infoTrigger = document.getElementById('info-trigger');
     const closeTrigger = document.getElementById('close-trigger');
     const overlay = document.getElementById('info-overlay');
+    const video = document.getElementById('heroVideo');
+    const loadingGate = document.getElementById('loadingGate');
+
+    // Gate page until video is ready, then run animations
+    let videoReady = false;
+    function onVideoReady() {
+      if (videoReady) return;
+      videoReady = true;
+      body.classList.remove('page-loading');
+      body.classList.add('page-loaded');
+      loadingGate.classList.add('hidden');
+    }
+
+    if (video) {
+      if (video.readyState >= 3) {
+        onVideoReady();
+      } else {
+        video.addEventListener('canplay', onVideoReady, { once: true });
+        video.addEventListener('loadeddata', onVideoReady, { once: true });
+        setTimeout(onVideoReady, 5000);
+      }
+    } else {
+      onVideoReady();
+    }
 
     function openInfo(e) {
       e.preventDefault();
@@ -380,7 +463,6 @@
     infoTrigger.addEventListener('click', openInfo);
     closeTrigger.addEventListener('click', closeInfo);
 
-    // Close on Escape
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && body.classList.contains('info-open')) closeInfo(e);
     });
